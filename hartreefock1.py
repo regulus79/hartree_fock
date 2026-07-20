@@ -1,4 +1,4 @@
-from integral_implementations1 import overlap_integral, overlap_integral_derivative, nuclear_attraction_integral, electron_repulsion_integral
+from integral_implementations1 import *
 import math
 import numpy as np
 
@@ -19,7 +19,7 @@ class Gaussian():
 	def __init__(self, position, exponent, angular_momentum):
 		self.position = np.array(position)
 		self.exponent = exponent
-		self.angular_momentum = angular_momentum # NOT IMPLEMENTED
+		self.angular_momentum = np.array(angular_momentum) # NOT IMPLEMENTED
 
 class ContractedGaussian():
 	def __init__(self, position, exponents, angular_momenta, coefficients):
@@ -30,7 +30,8 @@ class ContractedGaussian():
 		self.selfOverlap = 0
 		for i, gaussian1 in enumerate(self.gaussians):
 			for j, gaussian2 in enumerate(self.gaussians):
-				self.selfOverlap += self.coefficients[i] * self.coefficients[j] * overlap_integral(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent)
+				self.selfOverlap += self.coefficients[i] * self.coefficients[j] \
+					* overlap_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum)
 		self.normalizationFactor = 1 / math.sqrt(self.selfOverlap)
 
 
@@ -39,9 +40,9 @@ def overlapMatrixElement(contractedGaussian1, contractedGaussian2):
 	total = 0
 	for i, gaussian1 in enumerate(contractedGaussian1.gaussians):
 		for j, gaussian2 in enumerate(contractedGaussian2.gaussians):
-			print(i,j, contractedGaussian1.coefficients[i], contractedGaussian2.coefficients[j], overlap_integral(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent) * contractedGaussian1.normalizationFactor * contractedGaussian2.normalizationFactor)
+			print(i,j, contractedGaussian1.coefficients[i], contractedGaussian2.coefficients[j], overlap_integral_primative(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent) * contractedGaussian1.normalizationFactor * contractedGaussian2.normalizationFactor)
 			total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] \
-				* overlap_integral(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent)
+				* overlap_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum)
 	total *= contractedGaussian1.normalizationFactor
 	total *= contractedGaussian2.normalizationFactor
 	print(total)
@@ -51,9 +52,9 @@ def kineticMatrixElement(contractedGaussian1, contractedGaussian2):
 	total = 0
 	for i, gaussian1 in enumerate(contractedGaussian1.gaussians):
 		for j, gaussian2 in enumerate(contractedGaussian2.gaussians):
-			laplacianX = overlap_integral_derivative(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent, 2, 0, 0)
-			laplacianY = overlap_integral_derivative(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent, 0, 2, 0)
-			laplacianZ = overlap_integral_derivative(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent, 0, 0, 2)
+			laplacianX = overlap_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *(gaussian2.angular_momentum + np.array([2,0,0])))
+			laplacianY = overlap_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *(gaussian2.angular_momentum + np.array([0,2,0])))
+			laplacianZ = overlap_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *(gaussian2.angular_momentum + np.array([0,0,2])))
 			total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] \
 				* -h_bar**2 / (2*mass_e) * (laplacianX + laplacianY + laplacianZ)
 	total *= contractedGaussian1.normalizationFactor
@@ -67,7 +68,7 @@ def potentialMatrixElement(contractedGaussian1, contractedGaussian2, nuclei):
 		for j, gaussian2 in enumerate(contractedGaussian2.gaussians):
 			for nucleus in nuclei:
 				total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] \
-					* 1/(4*math.pi*epsilon0) * -charge_e * nucleus.charge * nuclear_attraction_integral(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent, *nucleus.position)
+					* 1/(4*math.pi*epsilon0) * -charge_e * nucleus.charge * nuclear_attraction_integral_primative_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position)
 	total *= contractedGaussian1.normalizationFactor
 	total *= contractedGaussian2.normalizationFactor
 	total *= hartree_per_joule
@@ -80,11 +81,11 @@ def electronRepulsionMatrixElement(contractedGaussian1, contractedGaussian2, con
 			for k, gaussian3 in enumerate(contractedGaussian3.gaussians):
 				for l, gaussian4 in enumerate(contractedGaussian4.gaussians):
 					total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] * contractedGaussian3.coefficients[k] * contractedGaussian4.coefficients[l] \
-						* 1/(4*math.pi*epsilon0) * -charge_e * -charge_e * electron_repulsion_integral(
-							*gaussian1.position, gaussian1.exponent,
-							*gaussian3.position, gaussian3.exponent,
-							*gaussian2.position, gaussian2.exponent,
-							*gaussian4.position, gaussian4.exponent,
+						* 1/(4*math.pi*epsilon0) * -charge_e * -charge_e * electron_repulsion_integral_primative_hermite(
+							*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum,
+							*gaussian3.position, gaussian3.exponent, *gaussian2.angular_momentum, 
+							*gaussian2.position, gaussian2.exponent, *gaussian3.angular_momentum,
+							*gaussian4.position, gaussian4.exponent, *gaussian4.angular_momentum,
 						)
 	total *= contractedGaussian1.normalizationFactor
 	total *= contractedGaussian2.normalizationFactor
@@ -152,17 +153,24 @@ sto_3g_coefficients = np.array([
 ]) * (2 * sto_3g_exponents / np.pi)**(3/4)
 
 
+test_exponents = np.array([
+	1.0
+]) / bohr_radius**2
+test_coefficients = np.array([
+	1.0
+]) * (2 * test_exponents / np.pi)**(3/4)
+
 
 offset = 0.7414 * 1e-10
 
 nuclei = [
 	Nucleus((0,0,0), charge_e),
-	Nucleus((offset,0,0), charge_e)
 ]
 
 basisSet = [
-	ContractedGaussian((0,0,0), sto_3g_exponents, [(0,0,0), (0,0,0), (0,0,0)], sto_3g_coefficients),
-	ContractedGaussian((offset,0,0), sto_3g_exponents, [(0,0,0), (0,0,0), (0,0,0)], sto_3g_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(1,0,0)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(0,1,0)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(0,0,1)], test_coefficients),
 ]
 
 
@@ -174,6 +182,10 @@ print("S", S)
 print("T", T)
 print("V", V)
 print("W", W)
+
+
+exit()
+
 
 NR = nucleiRepulsionEnergy(nuclei)
 
@@ -198,7 +210,7 @@ def scf_iteration(S, T, V, W, NR, initial_coeffs):
 	print("Energy:", newCoeffs @ (2*(T + V) + newWslice) @ newCoeffs / (newCoeffs @ S @ newCoeffs) + NR)
 	return newCoeffs
 
-for i in range(3):
+for i in range(10):
 	print(f"=== SCF Iteration {i} ===")
 	initial_coeffs = scf_iteration(S, T, V, W, NR, initial_coeffs)
 
