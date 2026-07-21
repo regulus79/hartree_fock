@@ -68,7 +68,10 @@ def potentialMatrixElement(contractedGaussian1, contractedGaussian2, nuclei):
 		for j, gaussian2 in enumerate(contractedGaussian2.gaussians):
 			for nucleus in nuclei:
 				total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] \
-					* 1/(4*math.pi*epsilon0) * -charge_e * nucleus.charge * nuclear_attraction_integral_primative_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position)
+					* 1/(4*math.pi*epsilon0) * -charge_e * nucleus.charge * nuclear_attraction_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position)
+				print(i,j)
+				print(nuclear_attraction_integral_hermiteOLD(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position))
+				print(nuclear_attraction_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position))
 	total *= contractedGaussian1.normalizationFactor
 	total *= contractedGaussian2.normalizationFactor
 	total *= hartree_per_joule
@@ -123,7 +126,9 @@ def electronRepulsionMatrix(basisSet):
 		for j in range(len(basisSet)):
 			for k in range(len(basisSet)):
 				for l in range(len(basisSet)):
-					W[i][j][k][l] = electronRepulsionMatrixElement(basisSet[i], basisSet[j], basisSet[k], basisSet[l])
+					# Note the inidices are i,k,j,l instead of i,j,k,l, since when doing coeffs @ W @ coeffs, numpy multiplies down the last two indicies
+					# so to make sure one of each vector/covector indices are used, we need to flip them
+					W[i][j][k][l] = electronRepulsionMatrixElement(basisSet[i], basisSet[k], basisSet[j], basisSet[l])
 	return W
 
 
