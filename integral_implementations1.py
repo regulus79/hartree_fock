@@ -7,6 +7,8 @@ def boys(n, T):
 			return 1
 		return math.erf(math.sqrt(T))/math.sqrt(T) * math.sqrt(math.pi)/2
 	else:
+		if T == 0:
+			return 1 / (2*n + 1)
 		return (n - 1/2) / T * boys(n - 1, T) - math.exp(-T)/(2*T)
 
 
@@ -203,9 +205,9 @@ def nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list = 
 		new_term_boys2["n"] += 1
 		new_terms.append(new_term_boys1)
 		new_terms.append(new_term_boys2)
-	print("Remaining:", wrt_list)
-	for term in new_terms:
-		print(term)
+	#print("Remaining:", wrt_list)
+	#for term in new_terms:
+	#	print(term)
 	return nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list, new_terms)
 
 
@@ -244,11 +246,11 @@ def nuclear_attraction_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
-print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
+#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
+#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
 #print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
-print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
+#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
+#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,1,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
 #print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,1,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
