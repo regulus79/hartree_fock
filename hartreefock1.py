@@ -84,7 +84,7 @@ def electronRepulsionMatrixElement(contractedGaussian1, contractedGaussian2, con
 			for k, gaussian3 in enumerate(contractedGaussian3.gaussians):
 				for l, gaussian4 in enumerate(contractedGaussian4.gaussians):
 					total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] * contractedGaussian3.coefficients[k] * contractedGaussian4.coefficients[l] \
-						* 1/(4*math.pi*epsilon0) * -charge_e * -charge_e * electron_repulsion_integral_primative_hermite(
+						* 1/(4*math.pi*epsilon0) * -charge_e * -charge_e * electron_repulsion_integral_hermite(
 							*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum,
 							*gaussian3.position, gaussian3.exponent, *gaussian2.angular_momentum, 
 							*gaussian2.position, gaussian2.exponent, *gaussian3.angular_momentum,

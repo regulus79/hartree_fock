@@ -78,7 +78,7 @@ def electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3,
 	return 2*math.pi**(5/2) * A1*A2 / (B1*B2*math.sqrt(B1+B2)) * boys(0, T)
 
 
-def electron_repulsion_integral_primative_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2,ly2,lz2, x3,y3,z3,p3,lx3,ly3,lz3, x4,y4,z4,p4,lx4,ly4,lz4):
+def electron_repulsion_integral_hermiteOLD(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2,ly2,lz2, x3,y3,z3,p3,lx3,ly3,lz3, x4,y4,z4,p4,lx4,ly4,lz4):
 	delta = max(math.sqrt(p1+p2)**-1, math.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)) * 0.01
 	if lx1+ly1+lz1+lx2+ly2+lz2 == 0:
 		return electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4)
@@ -118,7 +118,7 @@ def electron_repulsion_integral_primative_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2
 # B''4bbcc - B'2b
 # -B'''8bbbccc + B''12bbc
 
-initial_term = {
+initial_term_NR = {
 	"scaling": [1],
 	"x1": [],
 	"y1": [],
@@ -141,7 +141,7 @@ initial_term = {
 #}
 
 # Helper function
-def copy_term(term):
+def copy_term_NR(term):
 	return {
 		"scaling": term["scaling"].copy(),
 		"x1": term["x1"].copy(),
@@ -153,7 +153,7 @@ def copy_term(term):
 		"n": term["n"],
 	}
 
-def nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list = [], terms = [initial_term]):
+def nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list = [], terms = [initial_term_NR]):
 	if wrt_list == []:
 		total = 0
 		for term in terms:
@@ -182,24 +182,24 @@ def nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list = 
 	new_terms = []
 	for term in terms:
 		for i,factor in enumerate(term[wrt]):
-			new_term = copy_term(term)
+			new_term = copy_term_NR(term)
 			new_term[wrt].pop(i)
 			new_term["scaling"].append(factor)
 			new_terms.append(new_term)
 		# The scaling term brings down a (-p1p2/(p1+p2) * 2(r2-r1)) term in front
 		# which can be split up into (-p1p2/(p1+p2) * 2(r2)) and (-p1p2/(p1+p2) * 2(-r1))
-		new_term_scaling1 = copy_term(term)
+		new_term_scaling1 = copy_term_NR(term)
 		new_term_scaling1[wrt].append(-2 * (p1*p2) / (p1+p2))
-		new_term_scaling2 = copy_term(term)
+		new_term_scaling2 = copy_term_NR(term)
 		new_term_scaling2[wrt_other].append(-2 * (p1*p2) / (p1+p2) * -1)
 		new_terms.append(new_term_scaling1)
 		new_terms.append(new_term_scaling2)
 		# The boys term brings down a -(p1+p2) * 2*(p1*r1 + p2*r2)/(p1+p2) which by chain rule also times p1/(p1+p2) or vice versa p2/(p1+p2), and increments the boys n order
 		# The term simplifies to -2*(p1*r1 + p2*r2) * p1/(p1+p2)
 		# Which can be split into -2*(p1*r1) * p1/(p1+p2) and 2*(p2*r2) * p1/(p1+p2)
-		new_term_boys1 = copy_term(term)
+		new_term_boys1 = copy_term_NR(term)
 		new_term_boys1[wrt].append(-2*(wrt_p) * (wrt_p)/(p1+p2))
-		new_term_boys2 = copy_term(term)
+		new_term_boys2 = copy_term_NR(term)
 		new_term_boys2[wrt_other].append(-2*(wrt_other_p) * (wrt_p)/(p1+p2))
 		new_term_boys1["n"] += 1
 		new_term_boys2["n"] += 1
@@ -233,7 +233,7 @@ def nuclear_attraction_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2
 	wrt_list += ["x2"] * lx2
 	wrt_list += ["y2"] * ly2
 	wrt_list += ["z2"] * lz2
-	return nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list, [initial_term])
+	return nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list, [initial_term_NR])
 
 #print(nuclear_attraction_integral_primative(*(0.1,0.2,0.3), 2, *(0.4,0.5,0.6), 3, *(0,0,0)))
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
@@ -253,4 +253,199 @@ def nuclear_attraction_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
 #print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
 #print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,1,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,1,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
+#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,1,0), *(0.4,0.5,0.6), 3, *(0
+
+
+
+initial_term_ERI = {
+	"scaling": [1],
+	"x1": [],
+	"y1": [],
+	"z1": [],
+	"x2": [],
+	"y2": [],
+	"z2": [],
+	"x3": [],
+	"y3": [],
+	"z3": [],
+	"x4": [],
+	"y4": [],
+	"z4": [],
+	"n": 0 # Boys function order
+}
+
+def copy_term_ERI(term):
+	return {
+		"scaling": term["scaling"].copy(),
+		"x1": term["x1"].copy(),
+		"y1": term["y1"].copy(),
+		"z1": term["z1"].copy(),
+		"x2": term["x2"].copy(),
+		"y2": term["y2"].copy(),
+		"z2": term["z2"].copy(),
+		"x3": term["x3"].copy(),
+		"y3": term["y3"].copy(),
+		"z3": term["z3"].copy(),
+		"x4": term["x4"].copy(),
+		"y4": term["y4"].copy(),
+		"z4": term["z4"].copy(),
+		"n": term["n"],
+	}
+
+
+def electron_repulsion_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, wrt_list = [], terms = [initial_term_ERI]):
+	if wrt_list == []:
+		total = 0
+		for term in terms:
+			temp = math.prod(term["scaling"])
+			for factor in term["x1"]:
+				temp *= factor * x1
+			for factor in term["x2"]:
+				temp *= factor * x2
+			for factor in term["x3"]:
+				temp *= factor * x3
+			for factor in term["x4"]:
+				temp *= factor * x4
+			for factor in term["y1"]:
+				temp *= factor * y1
+			for factor in term["y2"]:
+				temp *= factor * y2
+			for factor in term["y3"]:
+				temp *= factor * y3
+			for factor in term["y4"]:
+				temp *= factor * y4
+			for factor in term["z1"]:
+				temp *= factor * z1
+			for factor in term["z2"]:
+				temp *= factor * z2
+			for factor in term["z3"]:
+				temp *= factor * z3
+			for factor in term["z4"]:
+				temp *= factor * z4
+			temp *= math.exp(-(p1*p3) / (p1+p3) * ((x3 - x1)**2 + (y3 - y1)**2 + (z3 - z1)**2))
+			temp *= math.exp(-(p2*p4) / (p2+p4) * ((x4 - x2)**2 + (y4 - y2)**2 + (z4 - z2)**2))
+			temp *= boys(term["n"], ((p1+p3)*(p2+p4)/(p1+p3+p2+p4)) * (
+				((p2*x2 + p4*x4) / (p2 + p4) - (p1*x1 + p3*x3) / (p1 + p3))**2
+				+ ((p2*y2 + p4*y4) / (p2 + p4) - (p1*y1 + p3*y3) / (p1 + p3))**2
+				+ ((p2*z2 + p4*z4) / (p2 + p4) - (p1*z1 + p3*z3) / (p1 + p3))**2
+			))
+			total += temp
+		return 2 * math.pi**(5/2) / ((p1+p3)*(p2+p4) * (p1+p2+p3+p4)**0.5) * total
+
+	wrt = wrt_list.pop()
+	wrt_other = None
+	wrt_opposite = None
+	wrt_opposite_other = None
+	wrt_p = None
+	wrt_p_other = None
+	wrt_p_opposite = None
+	wrt_p_opposite_other = None
+	if wrt[-1] == "1":
+		wrt_other = wrt[0]+"2"; wrt_opposite = wrt[0]+"3"; wrt_opposite_other = wrt[0]+"4"
+		wrt_p = p1; wrt_p_other = p2; wrt_p_opposite = p3; wrt_p_opposite_other = p4
+	if wrt[-1] == "2":
+		wrt_other = wrt[0]+"1"; wrt_opposite = wrt[0]+"4"; wrt_opposite_other = wrt[0]+"3"
+		wrt_p = p2; wrt_p_other = p1; wrt_p_opposite = p4; wrt_p_opposite_other = p3
+	if wrt[-1] == "3":
+		wrt_other = wrt[0]+"4"; wrt_opposite = wrt[0]+"1"; wrt_opposite_other = wrt[0]+"2"
+		wrt_p = p3; wrt_p_other = p4; wrt_p_opposite = p1; wrt_p_opposite_other = p2
+	if wrt[-1] == "4":
+		wrt_other = wrt[0]+"3"; wrt_opposite = wrt[0]+"2"; wrt_opposite_other = wrt[0]+"1"
+		wrt_p = p4; wrt_p_other = p3; wrt_p_opposite = p2; wrt_p_opposite_other = p1
+
+	new_terms = []
+	for term in terms:
+		for i,factor in enumerate(term[wrt]):
+			new_term = copy_term_ERI(term)
+			new_term[wrt].pop(i)
+			new_term["scaling"].append(factor)
+			new_terms.append(new_term)
+		# The scaling term brings down a (-p1p3/(p1+p3) * 2(r3-r1)) term in front
+		# which can be split up into (-p1p3/(p1+p3) * 2(r3)) and (-p1p3/(p1+p3) * 2(-r1))
+		new_term_scaling1 = copy_term_ERI(term)
+		new_term_scaling1[wrt].append(-2 * (wrt_p*wrt_p_opposite) / (wrt_p+wrt_p_opposite))
+		new_term_scaling2 = copy_term_ERI(term)
+		new_term_scaling2[wrt_opposite].append(-2 * (wrt_p*wrt_p_opposite) / (wrt_p+wrt_p_opposite) * -1)
+		new_terms.append(new_term_scaling1)
+		new_terms.append(new_term_scaling2)
+		# The boys term brings down a -(p1+p3)*(p2+p4)/(p1+p3+p2+p4) * 2*((p1*r1 + p3*r3)/(p1+p3) - (p2*r2 + p4*r4)/(p2+p4)) which by chain rule also times p1/(p1+p3) (or vice versa) and increments the boys n order
+		# So in total -(p1+p3)*(p2+p4)/(p1+p3+p2+p4) * 2*((p1*r1 + p3*r3)/(p1+p3) - (p2*r2 + p4*r4)/(p2+p4)) * p1/(p1+p3)
+		# Which adds four new terms:
+		# -(p1+p3)*(p2+p4)/(p1+p3+p2+p4) * 2*p1*r1/(p1+p3) * p1/(p1+p3)
+		# -(p1+p3)*(p2+p4)/(p1+p3+p2+p4) * 2*p3*r3/(p1+p3) * p1/(p1+p3)
+		# -(p1+p3)*(p2+p4)/(p1+p3+p2+p4) * -2*p2*r2/(p2+p4) * p1/(p1+p3)
+		# -(p1+p3)*(p2+p4)/(p1+p3+p2+p4) * -2*p4*r4/(p2+p4) * p1/(p1+p3)
+		B = -(wrt_p + wrt_p_opposite)*(wrt_p_other + wrt_p_opposite_other)/(wrt_p + wrt_p_opposite + wrt_p_other + wrt_p_opposite_other)
+		new_term_boys1 = copy_term_ERI(term)
+		new_term_boys1[wrt].append(B * 2*wrt_p/(wrt_p+wrt_p_opposite)*wrt_p/(wrt_p+wrt_p_opposite))
+		new_term_boys2 = copy_term_ERI(term)
+		new_term_boys2[wrt_other].append(B * -2*wrt_p_other/(wrt_p_other+wrt_p_opposite_other)*wrt_p/(wrt_p+wrt_p_opposite))
+		new_term_boys3 = copy_term_ERI(term)
+		new_term_boys3[wrt_opposite].append(B * 2*wrt_p_opposite/(wrt_p+wrt_p_opposite)*wrt_p/(wrt_p+wrt_p_opposite))
+		new_term_boys4 = copy_term_ERI(term)
+		new_term_boys4[wrt_opposite_other].append(B * -2*wrt_p_opposite_other/(wrt_p_other+wrt_p_opposite_other)*wrt_p/(wrt_p+wrt_p_opposite))
+		new_term_boys1["n"] += 1
+		new_term_boys2["n"] += 1
+		new_term_boys3["n"] += 1
+		new_term_boys4["n"] += 1
+		new_terms.append(new_term_boys1)
+		new_terms.append(new_term_boys2)
+		new_terms.append(new_term_boys3)
+		new_terms.append(new_term_boys4)
+	#print("Remaining:", wrt_list)
+	#for term in new_terms:
+	#	print(term)
+	return electron_repulsion_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, wrt_list, new_terms)
+
+
+
+
+def electron_repulsion_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2,ly2,lz2, x3,y3,z3,p3,lx3,ly3,lz3, x4,y4,z4,p4,lx4,ly4,lz4):
+	wrt_list = []
+	wrt_list += ["x1"] * lx1
+	wrt_list += ["y1"] * ly1
+	wrt_list += ["z1"] * lz1
+	wrt_list += ["x2"] * lx2
+	wrt_list += ["y2"] * ly2
+	wrt_list += ["z2"] * lz2
+	wrt_list += ["x3"] * lx3
+	wrt_list += ["y3"] * ly3
+	wrt_list += ["z3"] * lz3
+	wrt_list += ["x4"] * lx4
+	wrt_list += ["y4"] * ly4
+	wrt_list += ["z4"] * lz4
+	return electron_repulsion_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, wrt_list, [initial_term_ERI])
+
+
+
+#print("new",electron_repulsion_integral_hermite(
+#	*(0.1,0.2,0.3), 2, *(0,0,0),
+#	*(0.4,0.5,0.6), 3, *(0,0,0),
+#	*(0.7,0.8,0.9), 4, *(0,0,0),
+#	*(1.0,1.1,1.2), 5, *(0,0,0),
+#))
+#print("old",electron_repulsion_integral_hermiteOLD(
+#	*(0.1,0.2,0.3), 2, *(0,0,0),
+#	*(0.4,0.5,0.6), 3, *(0,0,0),
+#	*(0.7,0.8,0.9), 4, *(0,0,0),
+#	*(1.0,1.1,1.2), 5, *(0,0,0),
+#))
+
+#print("new",electron_repulsion_integral_hermite(
+#	*(0.1,0.2,0.3), 2, *(1,0,0),
+#	*(0.4,0.5,0.6), 3, *(1,0,0),
+#	*(0.7,0.8,0.9), 4, *(1,0,0),
+#	*(1.0,1.1,1.2), 5, *(1,0,0),
+#))
+#print("old",electron_repulsion_integral_hermiteOLD(
+#	*(0.1,0.2,0.3), 2, *(1,0,0),
+#	*(0.4,0.5,0.6), 3, *(1,0,0),
+#	*(0.7,0.8,0.9), 4, *(1,0,0),
+#	*(1.0,1.1,1.2), 5, *(1,0,0),
+#))
+#print("new",electron_repulsion_integral_hermite(
+#	*(0.1,0.2,0.3), 2, *(1,0,0),
+#	*(0.4,0.5,0.6), 3, *(0,0,0),
+#	*(0.7,0.8,0.9), 4, *(0,0,0),
+#	*(1.0,1.1,1.2), 5, *(0,0,0),
+#))
