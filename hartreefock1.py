@@ -19,7 +19,7 @@ class Gaussian():
 	def __init__(self, position, exponent, angular_momentum):
 		self.position = np.array(position)
 		self.exponent = exponent
-		self.angular_momentum = np.array(angular_momentum) # NOT IMPLEMENTED
+		self.angular_momentum = np.array(angular_momentum)
 
 class ContractedGaussian():
 	def __init__(self, position, exponents, angular_momenta, coefficients):
@@ -40,12 +40,10 @@ def overlapMatrixElement(contractedGaussian1, contractedGaussian2):
 	total = 0
 	for i, gaussian1 in enumerate(contractedGaussian1.gaussians):
 		for j, gaussian2 in enumerate(contractedGaussian2.gaussians):
-			print(i,j, contractedGaussian1.coefficients[i], contractedGaussian2.coefficients[j], overlap_integral_primative(*gaussian1.position, gaussian1.exponent, *gaussian2.position, gaussian2.exponent) * contractedGaussian1.normalizationFactor * contractedGaussian2.normalizationFactor)
 			total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] \
 				* overlap_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum)
 	total *= contractedGaussian1.normalizationFactor
 	total *= contractedGaussian2.normalizationFactor
-	print(total)
 	return total
 
 def kineticMatrixElement(contractedGaussian1, contractedGaussian2):
@@ -69,9 +67,6 @@ def potentialMatrixElement(contractedGaussian1, contractedGaussian2, nuclei):
 			for nucleus in nuclei:
 				total += contractedGaussian1.coefficients[i] * contractedGaussian2.coefficients[j] \
 					* 1/(4*math.pi*epsilon0) * -charge_e * nucleus.charge * nuclear_attraction_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position)
-				print(i,j)
-				print(nuclear_attraction_integral_hermiteOLD(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position))
-				print(nuclear_attraction_integral_hermite(*gaussian1.position, gaussian1.exponent, *gaussian1.angular_momentum, *gaussian2.position, gaussian2.exponent, *gaussian2.angular_momentum, *nucleus.position))
 	total *= contractedGaussian1.normalizationFactor
 	total *= contractedGaussian2.normalizationFactor
 	total *= hartree_per_joule
@@ -103,21 +98,27 @@ def overlapMatrix(basisSet):
 	S = np.zeros((len(basisSet), len(basisSet)))
 	for i in range(len(basisSet)):
 		for j in range(len(basisSet)):
+			print(f"Overlap...{i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
 			S[i][j] = overlapMatrixElement(basisSet[i], basisSet[j])
+	print("")
 	return S
 
 def kineticMatrix(basisSet):
 	T = np.zeros((len(basisSet), len(basisSet)))
 	for i in range(len(basisSet)):
 		for j in range(len(basisSet)):
+			print(f"Kinetic...{i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
 			T[i][j] = kineticMatrixElement(basisSet[i], basisSet[j])
+	print("")
 	return T
 
 def potentialMatrix(basisSet, nuclei):
 	V = np.zeros((len(basisSet), len(basisSet)))
 	for i in range(len(basisSet)):
 		for j in range(len(basisSet)):
+			print(f"Potential...{i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
 			V[i][j] = potentialMatrixElement(basisSet[i], basisSet[j], nuclei)
+	print("")
 	return V
 
 def electronRepulsionMatrix(basisSet):
@@ -126,9 +127,11 @@ def electronRepulsionMatrix(basisSet):
 		for j in range(len(basisSet)):
 			for k in range(len(basisSet)):
 				for l in range(len(basisSet)):
+					print(f"ERI...{i*len(basisSet)**3+j*len(basisSet)**2+k*len(basisSet)+l+1}/{len(basisSet)**4}", end="\r")
 					# Note the inidices are i,k,j,l instead of i,j,k,l, since when doing coeffs @ W @ coeffs, numpy multiplies down the last two indicies
 					# so to make sure one of each vector/covector indices are used, we need to flip them
 					W[i][j][k][l] = electronRepulsionMatrixElement(basisSet[i], basisSet[k], basisSet[j], basisSet[l])
+	print("")
 	return W
 
 
@@ -173,19 +176,26 @@ nuclei = [
 ]
 
 basisSet = [
-	ContractedGaussian((0,0,0), test_exponents, [(1,0,0)], test_coefficients),
-	ContractedGaussian((0,0,0), test_exponents, [(0,1,0)], test_coefficients),
-	ContractedGaussian((0,0,0), test_exponents, [(0,0,1)], test_coefficients),
+#	ContractedGaussian((0,0,0), test_exponents, [(0,0,0)], test_coefficients),
+#	ContractedGaussian((0,0,0), test_exponents, [(1,0,0)], test_coefficients),
+#	ContractedGaussian((0,0,0), test_exponents, [(0,1,0)], test_coefficients),
+#	ContractedGaussian((0,0,0), test_exponents, [(0,0,1)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(2,0,0)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(1,1,0)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(1,0,1)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(0,2,0)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(0,1,1)], test_coefficients),
+	ContractedGaussian((0,0,0), test_exponents, [(0,0,2)], test_coefficients),
 ]
 
 
 S = overlapMatrix(basisSet)
-T = kineticMatrix(basisSet)
-V = potentialMatrix(basisSet, nuclei)
-W = electronRepulsionMatrix(basisSet)
 print("S", S)
+T = kineticMatrix(basisSet)
 print("T", T)
+V = potentialMatrix(basisSet, nuclei)
 print("V", V)
+W = electronRepulsionMatrix(basisSet)
 print("W", W)
 
 
