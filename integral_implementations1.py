@@ -221,96 +221,105 @@ def better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,n
 	# If there are no more derivatives to take, evalute the R function
 	if wrt_list_copy == []:
 		return R(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2, n_boys)
-	next_derivative_index = wrt_list_copy.pop()
-	if next_derivative_index == "x1":
-		# -2*(p1p2/(p1+p2))*(R^0_1,0,0,0,0,0 - R^0_0,0,0,1,0,0) + -2*(p1+p2)*(p1/(p1+p2)) * (p1/(p1+p2)*R^1_1,0,0,0,0,0 + p2/(p1+p2)*R^1_0,0,0,1,0,0)
-		# along with the term from the x1^n, so + nR^0_(n-1),0,0,0,0,0
-		return -2*(p1*p2/(p1+p2)) * (
-			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys, wrt_list_copy)
-		) + -2*(p1+p2)*(p1/(p1+p2)) * (
-			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
-			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys + 1, wrt_list_copy)
-		) + nx1 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1-1,ny1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-	if next_derivative_index == "x2":
-		return -2*(p1*p2/(p1+p2)) * (
-			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys, wrt_list_copy)
-			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-		) + -2*(p1+p2)*(p2/(p1+p2)) * (
-			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
-			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys + 1, wrt_list_copy)
-		) + nx2 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2-1,ny2,nz2, n_boys, wrt_list_copy)
-	if next_derivative_index == "y1":
-		return -2*(p1*p2/(p1+p2)) * (
-			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-			-better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys, wrt_list_copy)
-		) + -2*(p1+p2)*(p1/(p1+p2)) * (
-			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
-			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys + 1, wrt_list_copy)
-		) + ny1 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1-1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-	if next_derivative_index == "y2":
-		return -2*(p1*p2/(p1+p2)) * (
-			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys, wrt_list_copy)
-			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-		) + -2*(p1+p2)*(p2/(p1+p2)) * (
-			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
-			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys + 1, wrt_list_copy)
-		) + ny2 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2-1,nz2, n_boys, wrt_list_copy)
-	if next_derivative_index == "z1":
-		return -2*(p1*p2/(p1+p2)) * (
-			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-			-better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys, wrt_list_copy)
-		) + -2*(p1+p2)*(p1/(p1+p2)) * (
-			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
-			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys + 1, wrt_list_copy)
-		) + nz1 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1-1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-	if next_derivative_index == "z2":
-		return -2*(p1*p2/(p1+p2)) * (
-			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys, wrt_list_copy)
-			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys, wrt_list_copy)
-		) + -2*(p1+p2)*(p2/(p1+p2)) * (
-			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
-			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys + 1, wrt_list_copy)
-		) + nz2 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2-1, n_boys, wrt_list_copy)
-	pass
+	wrt = wrt_list_copy.pop()
+	wrt_other = wrt+3 if wrt<3 else wrt-3
+	wrt_p = p1 if wrt<3 else p2
+	wrt_p_other = p2 if wrt<3 else p1
+	subscripts = [nx1,ny1,nz1,nx2,ny2,nz2]
+	subscripts_this_incremented = [nx1,ny1,nz1,nx2,ny2,nz2]; subscripts_this_incremented[wrt] += 1
+	subscripts_other_incremented = [nx1,ny1,nz1,nx2,ny2,nz2]; subscripts_other_incremented[wrt_other] += 1
+	subscripts_this_decremented = [nx1,ny1,nz1,nx2,ny2,nz2]; subscripts_this_decremented[wrt] -= 1
+	# -2*(p1p2/(p1+p2))*(R^0_1,0,0,0,0,0 - R^0_0,0,0,1,0,0) + -2*(p1+p2)*(p1/(p1+p2)) * (p1/(p1+p2)*R^1_1,0,0,0,0,0 + p2/(p1+p2)*R^1_0,0,0,1,0,0)
+	# along with the term from the x1^n, so + nR^0_(n-1),0,0,0,0,0
+	return -2*(p1*p2/(p1+p2)) * (
+		better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, *subscripts_this_incremented, n_boys, wrt_list_copy)
+		- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, *subscripts_other_incremented, n_boys, wrt_list_copy)
+	) + -2*(p1+p2)*(wrt_p/(p1+p2)) * (
+		wrt_p/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, *subscripts_this_incremented, n_boys + 1, wrt_list_copy)
+		+ wrt_p_other/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, *subscripts_other_incremented, n_boys + 1, wrt_list_copy)
+	) + (subscripts[wrt] * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, *subscripts_this_decremented, n_boys, wrt_list_copy) if subscripts[wrt]>0 else 0)
 
+import time
 
 print(nuclear_attraction_integral_primative(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 1,0,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 1,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [3]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,1,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y1"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [1]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,1,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [4]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,1, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z1"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [2]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,0,1, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [5]))
 print()
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 2,0,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x1"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 2,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x2","x2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [3,3]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,2,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y1","y1"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [1,1]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,2,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y2","y2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [4,4]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,2, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z1","z1"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [2,2]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,0,2, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z2","z2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [5,5]))
 print()
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 1,0,0, 0.4,0.5,0.6, 3, 1,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,3]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 1,0,0, 0.4,0.5,0.6, 3, 0,1,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","y2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,4]))
 print()
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 2,0,0, 0.4,0.5,0.6, 3, 2,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x1","x2","x2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0,3,3]))
 print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 3,0,0, 0.4,0.5,0.6, 3, 3,0,0, 0,0,0))
-print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x1","x1","x2","x2","x2"]))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0,0,3,3,3]))
+
+t1 = time.time()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 1,0,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print(time.time()-t1)
+t1 = time.time()
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0]))
+print(time.time()-t1)
+
+t1 = time.time()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 2,0,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print(time.time()-t1)
+t1 = time.time()
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0]))
+print(time.time()-t1)
+
+t1 = time.time()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 2,0,0, 0.4,0.5,0.6, 3, 2,0,0, 0,0,0))
+print(time.time()-t1)
+t1 = time.time()
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0,3,3]))
+print(time.time()-t1)
+
+
+t1 = time.time()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 3,0,0, 0.4,0.5,0.6, 3, 3,0,0, 0,0,0))
+print(time.time()-t1)
+t1 = time.time()
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0,0,3,3,3]))
+print(time.time()-t1)
+
+t1 = time.time()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 4,0,0, 0.4,0.5,0.6, 3, 4,0,0, 0,0,0))
+print(time.time()-t1)
+t1 = time.time()
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0,0,0,3,3,3,3]))
+print(time.time()-t1)
+
+t1 = time.time()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 4,0,0, 0.4,0.5,0.6, 3, 5,0,0, 0,0,0))
+print(time.time()-t1)
+t1 = time.time()
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, [0,0,0,0,3,3,3,3,3]))
+print(time.time()-t1)
 
 
 
