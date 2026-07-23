@@ -50,18 +50,6 @@ def nuclear_attraction_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, xn, yn, zn):
 	return 2 * math.pi/B * A * boys(0, B*C**2)
 
 
-def nuclear_attraction_integral_hermiteOLD(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2,ly2,lz2, xn, yn, zn):
-	delta = max(math.sqrt(p1+p2)**-1, math.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)) * 0.01
-	if lx1+ly1+lz1+lx2+ly2+lz2 == 0:
-		return nuclear_attraction_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, xn, yn, zn)
-	elif lx1+ly1+lz1 == 1 and lx2+ly2+lz2 == 1:
-		return \
-			((nuclear_attraction_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, xn, yn, zn) \
-				- nuclear_attraction_integral_primative(x1,y1,z1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, xn, yn, zn))/delta \
-			- (nuclear_attraction_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2,y2,z2,p2, xn, yn, zn) \
-				- nuclear_attraction_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, xn, yn, zn))/delta)/delta
-
-
 def electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4):
 	A1 = math.exp(-(p1*p3) / (p1+p3) * ((x3-x1)**2 + (y3-y1)**2 + (z3-z1)**2))
 	B1 = p1+p3
@@ -78,45 +66,6 @@ def electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3,
 	return 2*math.pi**(5/2) * A1*A2 / (B1*B2*math.sqrt(B1+B2)) * boys(0, T)
 
 
-def electron_repulsion_integral_hermiteOLD(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2,ly2,lz2, x3,y3,z3,p3,lx3,ly3,lz3, x4,y4,z4,p4,lx4,ly4,lz4):
-	delta = max(math.sqrt(p1+p2)**-1, math.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)) * 0.01
-	if lx1+ly1+lz1+lx2+ly2+lz2 == 0:
-		return electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4)
-	elif lx1+ly1+lz1 == 1 and lx2+ly2+lz2 == 1:
-		x1+delta*lx1,y1+delta*ly1,z1+delta*lz1
-		x2+delta*lx2,y2+delta*ly2,z2+delta*lz2
-		x3+delta*lx3,y3+delta*ly3,z3+delta*lz3
-		x4+delta*lx4,y4+delta*ly4,z4+delta*lz4
-		return \
-			((((electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4))/delta \
-			- (electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2,y2,z2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4))/delta)/delta \
-			- ((electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3,y3,z3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3,y3,z3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4))/delta \
-			- (electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4+delta*lx4,y4+delta*ly4,z4+delta*lz4,p4))/delta)/delta)/delta \
-			- (((electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4,y4,z4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4,y4,z4,p4))/delta \
-			- (electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2,y2,z2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4,y4,z4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3+delta*lx3,y3+delta*ly3,z3+delta*lz3,p3, x4,y4,z4,p4))/delta)/delta \
-			- ((electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3,y3,z3,p3, x4,y4,z4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2+delta*lx2,y2+delta*ly2,z2+delta*lz2,p2, x3,y3,z3,p3, x4,y4,z4,p4))/delta \
-			- (electron_repulsion_integral_primative(x1+delta*lx1,y1+delta*ly1,z1+delta*lz1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4) \
-				- electron_repulsion_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4))/delta)/delta)/delta)/delta
-
-
-# Need to take derivatives of
-# e^-kc * F(bc^2)
-# A*B
-# A'*B + A*B'*2bc
-# A''*B + A'*B' + A'*B'*2bc + A*B''*2bc + A*B'*2b
-# A'''*B + A''*B' + A''*B' + A'*B'' + A''*B'*2bc + A'*B''*2bc + A'*B'*2b + A'*B''*2bc + A*B'''*2bc + A*B''*2b + A'*B'*2b + A*B''*2b
-
-# B
-# -B'2bc
-# B''4bbcc - B'2b
-# -B'''8bbbccc + B''12bbc
 
 initial_term_NR = {
 	"scaling": [1],
@@ -211,15 +160,6 @@ def nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list = 
 	return nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list, new_terms)
 
 
-#print(nuclear_attraction_integral_recurrance(0.1,0.2,0.3, 2,  0.6,0.4,0.5, 3,  0,0,0, [], [initial_term]))
-#print(nuclear_attraction_integral_recurrance(0.1,0.2,0.3, 2,  0.6,0.4,0.5, 3,  0,0,0, ["x2"], [initial_term]))
-#print(nuclear_attraction_integral_recurrance(0.1,0.2,0.3, 2,  0.6,0.4,0.5, 3,  0,0,0, ["x2", "x2"], [initial_term]))
-
-#print(nuclear_attraction_integral_recurrance(3, 2, 0.3, 0.2, 0.1, [], [initial_term]))
-#print(nuclear_attraction_integral_recurrance(3, 2, 0.3, 0.2, 0.1, ["x"], [initial_term]))
-#print(nuclear_attraction_integral_recurrance(3, 2, 0.3, 0.2, 0.1, ["x","x"], [initial_term]))
-
-
 
 
 def nuclear_attraction_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2,ly2,lz2, xn, yn, zn):
@@ -235,25 +175,144 @@ def nuclear_attraction_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2
 	wrt_list += ["z2"] * lz2
 	return nuclear_attraction_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, wrt_list, [initial_term_NR])
 
-#print(nuclear_attraction_integral_primative(*(0.1,0.2,0.3), 2, *(0.4,0.5,0.6), 3, *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(2,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(1,0,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,0,1), *(0.4,0.5,0.6), 3, *(1,0,0), *(0,0,0)))
-#print("new",nuclear_attraction_integral_hermite(*(0.1,0.2,0.3), 2, *(0,1,0), *(0.4,0.5,0.6), 3, *(0,1,0), *(0,0,0)))
-#print("old",nuclear_attraction_integral_hermiteOLD(*(0.1,0.2,0.3), 2, *(0,1,0), *(0.4,0.5,0.6), 3, *(0
+
+
+
+
+
+#
+# Let's define a function, R, with some fancy subscript and superscripts: R^0_0,0,0,0,0,0
+# R^0_0,0,0,0,0,0 is the default nuclear attraction integral: e^(-p1p2/(p1+p2) * ((x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2)) * int_0^1 e^(-(p1+p2)*(((p1x1+p2x2)/(p1+p2))^2+((p1y1+p2y2)/(p1+p2))^2+((p1z1+p2z2)/(p1+p2))^2)*t^2) dt
+# Adding a t^2n in the boys integral increases the superscript: R^n_0,0,0,0,0,0
+# Multiplying it by x1 increments the x1 subscript: R^0_1,0,0,0,0,0, and likewise for y1: R^0_0,1,0,0,0,0, or x2: R^0_0,0,0,1,0,0
+# So exentially, x1*R^0_0,0,0,0,0,0 = R^0_1,0,0,0,0,0
+#
+# The derivative of R^0_0,0,0,0,0,0 wrt to x2 is
+# -2*(p1p2/(p1+p2))*(x2-x1) * R^0_0,0,0,0,0,0 + -2*(p1+p2)*((p1x1+p2x2)/(p1+p2))*(p2/(p1+p2)) * R^1_0,0,0,0,0,0
+# wrt to x1 is similar
+# -2*(p1p2/(p1+p2))*(x2-x1)*-1 * R^0_0,0,0,0,0,0 + -2*(p1+p2)*((p1x1+p2x2)/(p1+p2))*(p1/(p1+p2)) * R^1_0,0,0,0,0,0
+# By grouping the x1,x2 with the R terms, we can take advantage of the subscript notation, so
+# -2*(p1p2/(p1+p2))*(x2-x1) * R^0_0,0,0,0,0,0 + -2*(p1+p2)*((p1x1+p2x2)/(p1+p2))*(p2/(p1+p2)) * R^1_0,0,0,0,0,0
+# becomes
+# -2*(p1p2/(p1+p2))*(R^0_0,0,0,1,0,0 - R^0_1,0,0,0,0,0) + -2*(p1+p2)*(p2/(p1+p2)) * (p1/(p1+p2)*R^1_1,0,0,0,0,0 + p2/(p1+p2)*R^1_0,0,0,1,0,0)
+# Now we have expressed the derivative of R^0_0,0,0,0,0,0 in terms of a linear combination of higher R terms
+#
+# The derivatives of the higher R terms can also be found:
+# Forunately, the derivative of R^n_0,0,0,0,0,0 is the same as the derivative of R^0_0,0,0,0,0,0, but with +n in the resulting superscripts
+# The derivative of the subscript terms:
+# Because R^0_n,0,0,0,0,0 = x1^n*R^0_0,0,0,0,0,0, the derivative of R^0_n,0,0,0,0,0 = nR^0_(n-1),0,0,0,0,0 + the derivative of R^0_0,0,0,0,0,0
+
+# Here, nx1,ny1, etc correspond to the subscripts of R, so the powers of x1,y1,etc in front of the R term
+def R(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2, n_boys):
+	A = math.exp(-(p1*p2/(p1+p2)) * ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2))
+	B = (p1+p2)
+	Cx = (p1*x1+p2*x2) / B
+	Cy = (p1*y1+p2*y2) / B
+	Cz = (p1*z1+p2*z2) / B
+	return 2*math.pi/B * A * boys(n_boys, B*(Cx**2 + Cy**2 + Cz**2)) * x1**nx1 * y1**ny1 * z1**nz1 * x2**nx2 * y2**ny2 * z2**nz2
+
+
+
+# This function takes derivatives of the R function
+# The wrt_list has a list of the remaining indicies which need derivatives taken. It takes the next derivative by expanding it in terms of
+# higher order R functions, and recursively calls this function to take the derivatives of those, down the line.
+def better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2, n_boys, wrt_list):
+	wrt_list_copy = wrt_list.copy()
+	# If there are no more derivatives to take, evalute the R function
+	if wrt_list_copy == []:
+		return R(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2, n_boys)
+	next_derivative_index = wrt_list_copy.pop()
+	if next_derivative_index == "x1":
+		# -2*(p1p2/(p1+p2))*(R^0_1,0,0,0,0,0 - R^0_0,0,0,1,0,0) + -2*(p1+p2)*(p1/(p1+p2)) * (p1/(p1+p2)*R^1_1,0,0,0,0,0 + p2/(p1+p2)*R^1_0,0,0,1,0,0)
+		# along with the term from the x1^n, so + nR^0_(n-1),0,0,0,0,0
+		return -2*(p1*p2/(p1+p2)) * (
+			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys, wrt_list_copy)
+		) + -2*(p1+p2)*(p1/(p1+p2)) * (
+			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
+			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys + 1, wrt_list_copy)
+		) + nx1 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1-1,ny1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+	if next_derivative_index == "x2":
+		return -2*(p1*p2/(p1+p2)) * (
+			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys, wrt_list_copy)
+			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+		) + -2*(p1+p2)*(p2/(p1+p2)) * (
+			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1+1,ny1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
+			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2+1,ny2,nz2, n_boys + 1, wrt_list_copy)
+		) + nx2 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2-1,ny2,nz2, n_boys, wrt_list_copy)
+	if next_derivative_index == "y1":
+		return -2*(p1*p2/(p1+p2)) * (
+			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+			-better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys, wrt_list_copy)
+		) + -2*(p1+p2)*(p1/(p1+p2)) * (
+			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
+			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys + 1, wrt_list_copy)
+		) + ny1 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1-1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+	if next_derivative_index == "y2":
+		return -2*(p1*p2/(p1+p2)) * (
+			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys, wrt_list_copy)
+			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+		) + -2*(p1+p2)*(p2/(p1+p2)) * (
+			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1+1,nz1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
+			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2+1,nz2, n_boys + 1, wrt_list_copy)
+		) + ny2 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2-1,nz2, n_boys, wrt_list_copy)
+	if next_derivative_index == "z1":
+		return -2*(p1*p2/(p1+p2)) * (
+			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+			-better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys, wrt_list_copy)
+		) + -2*(p1+p2)*(p1/(p1+p2)) * (
+			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
+			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys + 1, wrt_list_copy)
+		) + nz1 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1-1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+	if next_derivative_index == "z2":
+		return -2*(p1*p2/(p1+p2)) * (
+			better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys, wrt_list_copy)
+			- better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys, wrt_list_copy)
+		) + -2*(p1+p2)*(p2/(p1+p2)) * (
+			p1/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1+1,nx2,ny2,nz2, n_boys + 1, wrt_list_copy)
+			+ p2/(p1+p2) * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2+1, n_boys + 1, wrt_list_copy)
+		) + nz2 * better_nuclear_attraction_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, nx1,ny1,nz1,nx2,ny2,nz2-1, n_boys, wrt_list_copy)
+	pass
+
+
+print(nuclear_attraction_integral_primative(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 1,0,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 1,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x2"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,1,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y1"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,1,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y2"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,1, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z1"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,0,1, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z2"]))
+print()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 2,0,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x1"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 2,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x2","x2"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,2,0, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y1","y1"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,2,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["y2","y2"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,2, 0.4,0.5,0.6, 3, 0,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z1","z1"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 0,0,0, 0.4,0.5,0.6, 3, 0,0,2, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["z2","z2"]))
+print()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 1,0,0, 0.4,0.5,0.6, 3, 1,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x2"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 1,0,0, 0.4,0.5,0.6, 3, 0,1,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","y2"]))
+print()
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 2,0,0, 0.4,0.5,0.6, 3, 2,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x1","x2","x2"]))
+print("old",nuclear_attraction_integral_hermite(0.1,0.2,0.3, 2, 3,0,0, 0.4,0.5,0.6, 3, 3,0,0, 0,0,0))
+print("new",better_nuclear_attraction_recurrance(0.1,0.2,0.3, 2, 0.4,0.5,0.6, 3, 0,0,0,0,0,0, 0, ["x1","x1","x1","x2","x2","x2"]))
+
+
 
 
 
@@ -294,6 +353,7 @@ def copy_term_ERI(term):
 
 
 def electron_repulsion_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, wrt_list = [], terms = [initial_term_ERI]):
+	print(wrt_list)
 	if wrt_list == []:
 		total = 0
 		for term in terms:
@@ -415,37 +475,3 @@ def electron_repulsion_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2
 	wrt_list += ["y4"] * ly4
 	wrt_list += ["z4"] * lz4
 	return electron_repulsion_integral_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, wrt_list, [initial_term_ERI])
-
-
-
-#print("new",electron_repulsion_integral_hermite(
-#	*(0.1,0.2,0.3), 2, *(0,0,0),
-#	*(0.4,0.5,0.6), 3, *(0,0,0),
-#	*(0.7,0.8,0.9), 4, *(0,0,0),
-#	*(1.0,1.1,1.2), 5, *(0,0,0),
-#))
-#print("old",electron_repulsion_integral_hermiteOLD(
-#	*(0.1,0.2,0.3), 2, *(0,0,0),
-#	*(0.4,0.5,0.6), 3, *(0,0,0),
-#	*(0.7,0.8,0.9), 4, *(0,0,0),
-#	*(1.0,1.1,1.2), 5, *(0,0,0),
-#))
-
-#print("new",electron_repulsion_integral_hermite(
-#	*(0.1,0.2,0.3), 2, *(1,0,0),
-#	*(0.4,0.5,0.6), 3, *(1,0,0),
-#	*(0.7,0.8,0.9), 4, *(1,0,0),
-#	*(1.0,1.1,1.2), 5, *(1,0,0),
-#))
-#print("old",electron_repulsion_integral_hermiteOLD(
-#	*(0.1,0.2,0.3), 2, *(1,0,0),
-#	*(0.4,0.5,0.6), 3, *(1,0,0),
-#	*(0.7,0.8,0.9), 4, *(1,0,0),
-#	*(1.0,1.1,1.2), 5, *(1,0,0),
-#))
-#print("new",electron_repulsion_integral_hermite(
-#	*(0.1,0.2,0.3), 2, *(1,0,0),
-#	*(0.4,0.5,0.6), 3, *(0,0,0),
-#	*(0.7,0.8,0.9), 4, *(0,0,0),
-#	*(1.0,1.1,1.2), 5, *(0,0,0),
-#))
