@@ -529,6 +529,14 @@ def better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, 
 
 
 def electron_repulsion_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2,ly2,lz2, x3,y3,z3,p3,lx3,ly3,lz3, x4,y4,z4,p4,lx4,ly4,lz4):
+	average_position_x = (x1+x2+x3+x4)/4
+	average_position_y = (y1+y2+y3+y4)/4
+	average_position_z = (z1+z2+z3+z4)/4
+	# For some reason, the offset position was causing some ERI's to blow up to like -2.6e84 on contracted p orbitals, but only on the integrals between 3 of one p orbital exponent, and 1 of another. I don't know why.
+	# This seems to fix it at least for now, but the recursion relations should probably be reworked sometime.
+	x1 -= average_position_x; x2 -= average_position_x; x3 -= average_position_x; x4 -= average_position_x
+	y1 -= average_position_y; y2 -= average_position_y; y3 -= average_position_y; y4 -= average_position_y
+	z1 -= average_position_z; z2 -= average_position_z; z3 -= average_position_z; z4 -= average_position_z
 	wrt_list = []
 	wrt_list += [0] * lx1
 	wrt_list += [1] * ly1
