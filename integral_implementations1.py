@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 def boys(n, T):
@@ -21,6 +22,34 @@ def hermite(n, x, p):
 		hermitePrev = hermiteCurrent
 		hermiteCurrent = hermiteNext
 	return hermiteCurrent
+
+
+# Given the coefficient of the x^i term of the n'th hermite polynomial, return the x^(i-2) coefficient of the n'th hermite polynomial (with p being the exponent of e^-(px^2)
+def hermite_left_recurrance(i,n,p, current_coeff):
+	return i*(i-1) / (2*(i-1) - 2*(n+1)) / p * current_coeff
+
+# Given a cartesian gaussian such as x^3 * e^-x^2, express the x^3 as a sum of hermite polynomials
+def monomial_to_hermite_polynomials(n, p):
+	# First two terms to ground the recursion
+	if n == 0:
+		return np.array([1])
+	if n == 1:
+		return np.array([0, -1/2 / p])
+	coeffs = np.zeros(n+1,)
+	coeffs[-1] = 1
+	# The first hermite polynomial of degree n is the n'th hermite polynomial
+	# But it also comtains some lower order terms which we need to cancel out with earlier hermite polynomials to end up with only x^n
+	# We can generate the other terms via the leftward recurrance relation
+	# The rightmost term always has a coeff of (-2p)^n
+	hermite_term_coefficient = (-2*p)**n
+	for i in range(n, 0+1, -2): #+1 on lower bound to prevent it from reaching 1 (since i-2 would be -1, which is negative. And i=1 is a bse value already, it returns [0, -2] above)
+		hermite_term_coefficient = hermite_left_recurrance(i, n, p, hermite_term_coefficient)
+		# We need to cancel out this term by adding some linear combination of the previous hermite polynomials. What linear combination will result in this coeff*x^i term?
+		# Of course! That's the whole point of this function, to express monomials like x^i as a sum of hermites. So let's just do some recursion.
+		coeffs[0:i-2+1] += -hermite_term_coefficient * monomial_to_hermite_polynomials(i-2, p)
+	# Finally, divide by (-2*p)^n so that the x^i term has a coeff of 1
+	return coeffs / (-2*p)**n
+
 
 
 def overlap_integral_primative(x1,y1,z1,p1, x2,y2,z2,p2):
@@ -481,7 +510,7 @@ def better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, 
 	# -2*(p1p3/(p1+p3))*(R^0_1,0,0,0,0,0,0,0,0,0,0,0 - R^0_0,0,0,0,0,0,0,1,0,0,0,0)
 	#+ -2*(p1+p3)*(p2+p4)/(p1+p2+p3+p4)*(p1/(p1+p3)) * (p1/(p1+p3)*R^1_1,0,0,0,0,0,0,0,0,0,0,0 + p3/(p1+p3)*R^1_0,0,0,0,0,0,1,0,0,0,0,0 - p2/(p2+p4)*R^1_0,0,0,1,0,0,0,0,0,0,0,0 - p4/(p2+p4)*R^1_0,0,0,0,0,0,0,0,0,1,0,0)
 	# along with the term from the x1^n, so + nR^0_(n-1),0,0,0,0,0,0,0,0,0,0,0
-	return -2*(wrt_p*wrt_p_opposite/(wrt_p+wrt_p_opposite)) * (
+	result = -2*(wrt_p*wrt_p_opposite/(wrt_p+wrt_p_opposite)) * (
 		better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, *subscripts_this_incremented, n_boys, wrt_list_copy)
 		- better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, *subscripts_opposite_incremented, n_boys, wrt_list_copy)
 	) + -2*(p1+p3)*(p2+p4)/(p1+p2+p3+p4)*(wrt_p/(wrt_p+wrt_p_opposite)) * (
@@ -494,6 +523,8 @@ def better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, 
 		- wrt_p_opposite_other/(wrt_p_other+wrt_p_opposite_other) \
 			* better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, *subscripts_opposite_other_incremented, n_boys + 1, wrt_list_copy)
 	) + (subscripts[wrt] * better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, *subscripts_this_decremented, n_boys, wrt_list_copy) if subscripts[wrt]>0 else 0)
+	#print(result)
+	return result
 
 
 
