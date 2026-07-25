@@ -454,14 +454,15 @@ def electron_repulsion_integral_hermiteSLOW(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2
 
 
 
-
-
-
-# Similar setup for the electron repulsion integrals
-
-def R_electron_repulsion(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, nx1,ny1,nz1,nx2,ny2,nz2,nx3,ny3,nz3,nx4,ny4,nz4, n_boys):
-	A1 = math.exp(-(p1*p3/(p1+p3)) * ((x3-x1)**2 + (y3-y1)**2 + (z3-z1)**2))
-	A2 = math.exp(-(p2*p4/(p2+p4)) * ((x4-x2)**2 + (y4-y2)**2 + (z4-z2)**2))
+# Precompute some values
+precomputed_boys_values = []
+precomputed_A1 = 0
+precomputed_A2 = 0
+def precompute_ERI_values(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, n_max):
+	global precomputed_boys_values, precomputed_A1, precomputed_A2
+	precomputed_A1 = math.exp(-(p1*p3/(p1+p3)) * ((x3-x1)**2 + (y3-y1)**2 + (z3-z1)**2))
+	precomputed_A2 = math.exp(-(p2*p4/(p2+p4)) * ((x4-x2)**2 + (y4-y2)**2 + (z4-z2)**2))
+	precomputed_boys_values = []
 	Cx1 = (p1*x1+p3*x3) / (p1+p3)
 	Cy1 = (p1*y1+p3*y3) / (p1+p3)
 	Cz1 = (p1*z1+p3*z3) / (p1+p3)
@@ -469,7 +470,29 @@ def R_electron_repulsion(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, nx1
 	Cy2 = (p2*y2+p4*y4) / (p2+p4)
 	Cz2 = (p2*z2+p4*z4) / (p2+p4)
 	B = (p1+p3)*(p2+p4)/(p1+p2+p3+p4)
-	return 2*math.pi**(5/2) / ((p1+p3)*(p2+p4)*(p1+p2+p3+p4)**0.5) * A1*A2 * boys(n_boys, B*((Cx2-Cx1)**2 + (Cy2-Cy1)**2 + (Cz2-Cz1)**2)) \
+	for n in range(n_max+1):
+		precomputed_boys_values.append(boys(n, B*((Cx2-Cx1)**2 + (Cy2-Cy1)**2 + (Cz2-Cz1)**2)))
+
+
+
+
+
+
+# Similar setup for the electron repulsion integrals
+
+# Call precompute_ERI_values() for each ERI integral before calling this method!
+def R_electron_repulsion(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, nx1,ny1,nz1,nx2,ny2,nz2,nx3,ny3,nz3,nx4,ny4,nz4, n_boys):
+	A1 = precomputed_A1#math.exp(-(p1*p3/(p1+p3)) * ((x3-x1)**2 + (y3-y1)**2 + (z3-z1)**2))
+	A2 = precomputed_A2#math.exp(-(p2*p4/(p2+p4)) * ((x4-x2)**2 + (y4-y2)**2 + (z4-z2)**2))
+	#Cx1 = (p1*x1+p3*x3) / (p1+p3)
+	#Cy1 = (p1*y1+p3*y3) / (p1+p3)
+	#Cz1 = (p1*z1+p3*z3) / (p1+p3)
+	#Cx2 = (p2*x2+p4*x4) / (p2+p4)
+	#Cy2 = (p2*y2+p4*y4) / (p2+p4)
+	#Cz2 = (p2*z2+p4*z4) / (p2+p4)
+	#B = (p1+p3)*(p2+p4)/(p1+p2+p3+p4)
+	#return 2*math.pi**(5/2) / ((p1+p3)*(p2+p4)*(p1+p2+p3+p4)**0.5) * A1*A2 * boys(n_boys, B*((Cx2-Cx1)**2 + (Cy2-Cy1)**2 + (Cz2-Cz1)**2)) \
+	return 2*math.pi**(5/2) / ((p1+p3)*(p2+p4)*(p1+p2+p3+p4)**0.5) * A1*A2 * precomputed_boys_values[n_boys] \
 		* x1**nx1 * y1**ny1 * z1**nz1 \
 		* x2**nx2 * y2**ny2 * z2**nz2 \
 		* x3**nx3 * y3**ny3 * z3**nz3 \
@@ -550,6 +573,7 @@ def electron_repulsion_integral_hermite(x1,y1,z1,p1,lx1,ly1,lz1, x2,y2,z2,p2,lx2
 	wrt_list += [9] * lx4
 	wrt_list += [10] * ly4
 	wrt_list += [11] * lz4
+	precompute_ERI_values(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, len(wrt_list))
 	return better_electron_repulsion_recurrance(x1,y1,z1,p1, x2,y2,z2,p2, x3,y3,z3,p3, x4,y4,z4,p4, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0, wrt_list)
 
 
