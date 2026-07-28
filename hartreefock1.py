@@ -129,6 +129,9 @@ def energy(coeffs, num_occupied_orbitals, nuclei, S, T, V, W):
 			two_electron_energy += orbital_coeffs2 @ (orbital_coeffs1 @ W @ orbital_coeffs1) @ orbital_coeffs2 / (orbital_coeffs1 @ S @ orbital_coeffs1) / (orbital_coeffs2 @ S @ orbital_coeffs2)
 			# Fock energy
 			two_electron_energy += -orbital_coeffs2 @ (orbital_coeffs1 @ W @ orbital_coeffs2) @ orbital_coeffs1 / (orbital_coeffs1 @ S @ orbital_coeffs1) / (orbital_coeffs2 @ S @ orbital_coeffs2)
+	two_electron_energy /= 2
+	#for orbital_coeffs in occupied_orbitals:
+	#	two_electron_energy += 0.5 * orbital_coeffs @ (orbital_coeffs @ W @ orbital_coeffs) @ orbital_coeffs / (orbital_coeffs @ S @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs)
 	print("Two electron energy", two_electron_energy)
 	
 	nuclei_repulsion_energy = nucleiRepulsionEnergy(nuclei)
@@ -158,6 +161,9 @@ def fock_operator(coeffs, num_occupied_orbitals, nuclei, S, T, V, W):
 
 		#two_electron_operators += (orbital_coeffs1 @ W @ orbital_coeffs1) / (orbital_coeffs1 @ S @ orbital_coeffs1)
 		#two_electron_operators += -(orbital_coeffs1 @ W.transpose((2,1,0,3)) @ orbital_coeffs1) / (orbital_coeffs1 @ S @ orbital_coeffs1)
+	two_electron_operators /= 2
+	#for orbital_coeffs in occupied_orbitals: # NO
+	#	two_electron_operators += 0.5 * (orbital_coeffs @ W @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs)
 	
 	return one_electron_operators + two_electron_operators
 
@@ -169,6 +175,12 @@ S = np.load("overlap.npy")
 T = np.load("kinetic.npy")
 V = np.load("potential.npy")
 W = np.load("electronRepulstion.npy")
+
+
+overlap_eigvals, overlap_eigvecs = np.linalg.eig(S)
+orthonormal_basis_coeffs = overlap_eigvecs @ np.diag(overlap_eigvals**-0.5)
+
+
 
 print("single electron best energy:", np.sort((np.linalg.eig(np.linalg.inv(S) @ (T+V)))[0]))
 
@@ -184,24 +196,39 @@ print("Total Energy:",energy(initial_coeffs, num_occupied_orbitals, nuclei, S, T
 
 def scf_iteration(S, T, V, W, NR, initial_coeffs):
 	fock = fock_operator(initial_coeffs, num_occupied_orbitals, nuclei, S, T, V, W)
-	print("Total energy from fock matrix (real):",sum([2*(orbital_coeffs @ fock @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs) for orbital_coeffs in initial_coeffs[:num_occupied_orbitals]]))
+	print("Total energy from fock matrix (real):",sum([2*((orbital_coeffs) @ fock @ (orbital_coeffs)) / ((orbital_coeffs) @ S @ (orbital_coeffs)) for orbital_coeffs in initial_coeffs[:num_occupied_orbitals]]))
+	#exit()
 	#for orbital_coeffs in initial_coeffs:
 		#print((orbital_coeffs @ fock @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs))
-	eigenvals, eigenvecs = np.linalg.eig(np.linalg.inv(S) @ fock)
+	eigenvals, eigenvecs = np.linalg.eig(orthonormal_basis_coeffs.T @ fock @ orthonormal_basis_coeffs)
+	eigenvals2, eigenvecs2 = np.linalg.eig(np.linalg.inv(S) @ fock)
 	print(eigenvals[np.argsort(eigenvals)])
+	print(eigenvals2[np.argsort(eigenvals2)])
 	#print(eigenvecs.T[np.argsort(eigenvals)])
 	#print(fock @ np.array([0,0,0,1,0,0,0]))
-	new_coeffs = eigenvecs.T[np.argsort(eigenvals)]
+	new_coeffs_ortho = eigenvecs.T[np.argsort(eigenvals)]
+	new_coeffs = (orthonormal_basis_coeffs @ new_coeffs_ortho.T).T
+	new_coeffs2 = eigenvecs2.T[np.argsort(eigenvals2)]
+	#print("Old in new basis:", new_coeffs.T @ initial_coeffs)
+	#print("New in new basis:", new_coeffs_ortho.T @ new_coeffs_ortho)
+	print("Old energy from fock matrix (old mat, old vec):",sum([2*(orbital_coeffs @ fock @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs) for orbital_coeffs in initial_coeffs[:num_occupied_orbitals]]))
 	print("New energy from fock matrix (old mat, new vec):",sum([2*(orbital_coeffs @ fock @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs) for orbital_coeffs in new_coeffs[:num_occupied_orbitals]]))
+	print("New energy from ortho fock matrix (old mat, new vec):",sum([2*(orbital_coeffs @ orthonormal_basis_coeffs.T @ fock @ orthonormal_basis_coeffs @ orbital_coeffs) for orbital_coeffs in new_coeffs_ortho[:num_occupied_orbitals]]))
+	fock1 = fock_operator(new_coeffs, num_occupied_orbitals, nuclei, S, T, V, W)
+	print("New energy from fock matrix (new mat, new vec):",sum([2*(orbital_coeffs @ fock1 @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs) for orbital_coeffs in new_coeffs[:num_occupied_orbitals]]))
+	print("New energy2 from fock matrix (old mat, new vec2):",sum([2*(orbital_coeffs @ fock @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs) for orbital_coeffs in new_coeffs2[:num_occupied_orbitals]]))
+	fock2 = fock_operator(new_coeffs2, num_occupied_orbitals, nuclei, S, T, V, W)
+	print("New energy2 from fock matrix (new mat, new vec2):",sum([2*(orbital_coeffs @ fock2 @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs) for orbital_coeffs in new_coeffs2[:num_occupied_orbitals]]))
 	#for orbital_coeffs in new_coeffs:
 		#print((orbital_coeffs @ fock @ orbital_coeffs) / (orbital_coeffs @ S @ orbital_coeffs),(orbital_coeffs @ S @ orbital_coeffs))
 	print(energy(new_coeffs, num_occupied_orbitals, nuclei, S, T, V, W))
 	return new_coeffs
 
-for i in range(6):
+first_coeffs = initial_coeffs
+for i in range(5):
 	print(f"=== Iteration {i} ===")
 	initial_coeffs = scf_iteration(S, T, V, W, NR, initial_coeffs)
-
+print("Compared to initial:",energy(first_coeffs, num_occupied_orbitals, nuclei, S, T, V, W))
 
 
 exit()
