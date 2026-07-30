@@ -4,9 +4,9 @@ import numpy as np
 
 bohr_radius = 5.291772e-11
 h_bar = 6.626070e-34 / (2*math.pi)
-mass_e = 9.109384e-31
-charge_e = 1.602176e-19
-epsilon0 = 8.854188e-12
+mass_e = 9.1093837139e-31
+charge_e = 1.602176634e-19
+epsilon0 = 8.8541878188e-12
 ev_per_hartree = 27.211386245981
 hartree_per_joule = 1 / charge_e / ev_per_hartree
 
