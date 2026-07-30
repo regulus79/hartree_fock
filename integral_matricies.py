@@ -122,8 +122,10 @@ def overlapMatrix(basisSet):
 	S = np.zeros((len(basisSet), len(basisSet)))
 	for i in range(len(basisSet)):
 		for j in range(len(basisSet)):
-			print(f"Overlap...{i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
-			S[i][j] = overlapMatrixElement(basisSet[i], basisSet[j])
+			print(f"Computing Overlap Integrals... {i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
+			if i <= j:
+				S[i][j] = overlapMatrixElement(basisSet[i], basisSet[j])
+				S[j][i] = S[i][j]
 	print("")
 	return S
 
@@ -131,8 +133,10 @@ def kineticMatrix(basisSet):
 	T = np.zeros((len(basisSet), len(basisSet)))
 	for i in range(len(basisSet)):
 		for j in range(len(basisSet)):
-			print(f"Kinetic...{i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
-			T[i][j] = kineticMatrixElement(basisSet[i], basisSet[j])
+			print(f"Computing Kinetic Integrals... {i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
+			if i <= j:
+				T[i][j] = kineticMatrixElement(basisSet[i], basisSet[j])
+				T[j][i] = T[i][j]
 	print("")
 	return T
 
@@ -140,8 +144,10 @@ def potentialMatrix(basisSet, nuclei):
 	V = np.zeros((len(basisSet), len(basisSet)))
 	for i in range(len(basisSet)):
 		for j in range(len(basisSet)):
-			print(f"Potential...{i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
-			V[i][j] = potentialMatrixElement(basisSet[i], basisSet[j], nuclei)
+			print(f"Computing Potential Integrals... {i*len(basisSet)+j+1}/{len(basisSet)**2}", end="\r")
+			if i <= j:
+				V[i][j] = potentialMatrixElement(basisSet[i], basisSet[j], nuclei)
+				V[j][i] = V[i][j]
 	print("")
 	return V
 
@@ -151,11 +157,14 @@ def electronRepulsionMatrix(basisSet):
 		for j in range(len(basisSet)):
 			for k in range(len(basisSet)):
 				for l in range(len(basisSet)):
-					print(f"ERI...{i*len(basisSet)**3+j*len(basisSet)**2+k*len(basisSet)+l+1}/{len(basisSet)**4}", end="\r")
-					# Note the inidices are i,k,j,l instead of i,j,k,l, since when doing coeffs @ W @ coeffs, numpy multiplies down the last two indicies
-					# so to make sure one of each vector/covector indices are used, we need to flip them
-					W[i][j][k][l] = electronRepulsionMatrixElement(basisSet[i], basisSet[k], basisSet[j], basisSet[l])
-					#print(W[i][j][k][l])
+					print(f"Computing Electron Repulsion Integrals... {i*len(basisSet)**3+j*len(basisSet)**2+k*len(basisSet)+l+1}/{len(basisSet)**4}", end="\r")
+					if i <= j and k <= l:
+						# Note the inidices are i,k,j,l instead of i,j,k,l, since when doing coeffs @ W @ coeffs, numpy multiplies down the last two indicies
+						# so to make sure one of each vector/covector indices are used, we need to flip them
+						W[i][j][k][l] = electronRepulsionMatrixElement(basisSet[i], basisSet[k], basisSet[j], basisSet[l])
+						W[i][j][l][k] = W[i][j][k][l]
+						W[j][i][k][l] = W[i][j][k][l]
+						W[j][i][l][k] = W[i][j][k][l]
 	print("")
 	return W
 

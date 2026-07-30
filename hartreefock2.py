@@ -72,16 +72,10 @@ num_electrons = 8 + 1 + 1
 num_occupied_orbitals = num_electrons // 2
 
 
-#S = overlapMatrix(basisSet)
-#T = kineticMatrix(basisSet)
-#V = potentialMatrix(basisSet, nuclei)
-#W = electronRepulsionMatrix(basisSet)
-
-S = np.load("overlap.npy")
-T = np.load("kinetic.npy")
-V = np.load("potential.npy")
-W = np.load("electronRepulstion.npy")
-
+S = overlapMatrix(basisSet)
+T = kineticMatrix(basisSet)
+V = potentialMatrix(basisSet, nuclei)
+W = electronRepulsionMatrix(basisSet)
 
 
 # Returns the energy of the antisymmetrized wavefunction, given the density matrices of the spin up (alpha) and spin down (beta) electrons
