@@ -1,81 +1,41 @@
 from integral_matricies import *
+from parse_gaussian_basis_set import parse_gaussian_basis_set
+from parse_xyz_file import parse_xyz_file
 import math
 import numpy as np
-
-sto_3g_exponents_H_1s = np.array([
-	0.3425250914E+01,
-	0.6239137298E+00,
-	0.1688554040E+00
-]) / bohr_radius**2
-sto_3g_coefficients_H_1s = np.array([
-	0.1543289673E+00,
-	0.5353281423E+00,
-	0.4446345422E+00
-])
-sto_3g_angular_momenta_H_1s = [(0,0,0), (0,0,0), (0,0,0)]
+import argparse
 
 
-sto_3g_exponents_O_1s = np.array([
-	0.1307093214E+03,
-	0.2380886605E+02,
-	0.6443608313E+01,
-]) / bohr_radius**2
-sto_3g_exponents_O_2sp = np.array([
-	0.5033151319E+01,
-	0.1169596125E+01,
-	0.3803889600E+00,
-]) / bohr_radius**2
 
-sto_3g_coefficients_O_1s = np.array([
-	0.1543289673E+00,
-	0.5353281423E+00,
-	0.4446345422E+00,
-])
-sto_3g_coefficients_O_2s = np.array([
-	-0.9996722919E-01,
-	0.3995128261E+00,
-	0.7001154689E+00,
-])
-sto_3g_coefficients_O_2p = np.array([
-	0.1559162750E+00,
-	0.6076837186E+00,
-	0.3919573931E+00,
-])
-
-sto_3g_angular_momenta_O_1s = [(0,0,0), (0,0,0), (0,0,0)]
-sto_3g_angular_momenta_O_2s = [(0,0,0), (0,0,0), (0,0,0)]
-sto_3g_angular_momenta_O_2px = [(1,0,0), (1,0,0), (1,0,0)]
-sto_3g_angular_momenta_O_2py = [(0,1,0), (0,1,0), (0,1,0)]
-sto_3g_angular_momenta_O_2pz = [(0,0,1), (0,0,1), (0,0,1)]
+parser = argparse.ArgumentParser()
+parser.add_argument("xyz_file")
+parser.add_argument("basis_set_file", default = "basis_sets/sto-3g.gbs")
+parser.add_argument("output_file", default = "output.npz")
+args = parser.parse_args()
 
 
-offset = 0.7414 * 1e-10
-
-nuclei = [
-	Nucleus((0,0,0), charge_e*8),
-	Nucleus((-offset*math.sqrt(2)/2,0,offset*math.sqrt(2)/2), charge_e),
-	Nucleus((offset*math.sqrt(2)/2,0,offset*math.sqrt(2)/2), charge_e),
-]
-
-basisSet = [
-	ContractedGaussian((0,0,0), sto_3g_exponents_O_1s, sto_3g_angular_momenta_O_1s, sto_3g_coefficients_O_1s),
-	ContractedGaussian((0,0,0), sto_3g_exponents_O_2sp, sto_3g_angular_momenta_O_2s, sto_3g_coefficients_O_2s),
-	ContractedGaussian((0,0,0), sto_3g_exponents_O_2sp, sto_3g_angular_momenta_O_2px, sto_3g_coefficients_O_2p),
-	ContractedGaussian((0,0,0), sto_3g_exponents_O_2sp, sto_3g_angular_momenta_O_2py, sto_3g_coefficients_O_2p),
-	ContractedGaussian((0,0,0), sto_3g_exponents_O_2sp, sto_3g_angular_momenta_O_2pz, sto_3g_coefficients_O_2p),
-	ContractedGaussian((-offset*math.sqrt(2)/2,0,offset*math.sqrt(2)/2), sto_3g_exponents_H_1s, sto_3g_angular_momenta_H_1s, sto_3g_coefficients_H_1s),
-	ContractedGaussian((offset*math.sqrt(2)/2,0,offset*math.sqrt(2)/2), sto_3g_exponents_H_1s, sto_3g_angular_momenta_H_1s, sto_3g_coefficients_H_1s),
-]
 
 
-num_electrons = 8 + 1 + 1
+nuclei, num_electrons = parse_xyz_file(args.xyz_file)
 num_occupied_orbitals = num_electrons // 2
 
+basis_set = parse_gaussian_basis_set(args.basis_set_file)
 
-S = overlapMatrix(basisSet)
-T = kineticMatrix(basisSet)
-V = potentialMatrix(basisSet, nuclei)
-W = electronRepulsionMatrix(basisSet)
+# Place gaussians from the basis set at each element
+gaussians = []
+for nucleus in nuclei:
+	if not nucleus.symbol in basis_set:
+		print(f"Error: Could not find element symbol {symbol} in basis set.")
+	contracted_gaussians = basis_set[nucleus.symbol]
+	for contracted_gaussian in contracted_gaussians:
+		gaussians.append(ContractedGaussian(nucleus.position, contracted_gaussian.exponents, contracted_gaussian.angular_momenta, contracted_gaussian.cartesian_coefficients))
+
+
+
+S = overlapMatrix(gaussians)
+T = kineticMatrix(gaussians)
+V = potentialMatrix(gaussians, nuclei)
+W = electronRepulsionMatrix(gaussians)
 
 
 # Returns the energy of the antisymmetrized wavefunction, given the density matrices of the spin up (alpha) and spin down (beta) electrons
@@ -251,11 +211,32 @@ for i in range(max_iterations):
 		break
 
 
-# Print the final energy
+# Print the final energy data
 total_energy, single_electron_energy, two_electron_energy, nuclei_repulsion_energy = HF_energy(new_density, new_density)
+# Compute the orbital energies too. This requires re-making the fock matrix
+fock = fock_matrix(current_density, current_density)
+fock_eigenvalues, fock_eigenvectors_in_orthonormal_basis = np.linalg.eigh(orthonormal_basis_coefficients.T @ fock @ orthonormal_basis_coefficients)
 
 print("=== Final Energy ===")
 print(f"One-Electron Energy: {single_electron_energy}")
 print(f"Two-Electron Energy: {two_electron_energy}")
 print(f"Nuclei Repulsion Energy: {nuclei_repulsion_energy}")
 print(f"Total Energy: {total_energy}")
+print("=== Orbital Energies (Fock Matrix Eigenvalues) ===")
+print(np.sort(fock_eigenvalues))
+
+
+
+# Save the data to a numpy .npz file so that it can be used later (such as to visualize the orbitals)
+np.savez(args.output_file,
+	single_electron_energy = single_electron_energy,
+	two_electron_energy = two_electron_energy,
+	nuclei_repulsion_energy = nuclei_repulsion_energy,
+	total_energy = total_energy,
+	orbital_energies = fock_eigenvalues,
+	orbital_basis_coefficients = orthonormal_basis_coefficients @ fock_eigenvectors_in_orthonormal_basis,
+	density_alpha = current_density,
+	density_beta = current_density,
+	xyz_file = args.xyz_file,
+	basis_set_file = args.basis_set_file
+)

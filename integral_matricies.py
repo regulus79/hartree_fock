@@ -11,9 +11,10 @@ ev_per_hartree = 27.211386245981
 hartree_per_joule = 1 / charge_e / ev_per_hartree
 
 class Nucleus():
-	def __init__(self, position, charge):
+	def __init__(self, position, charge, symbol):
 		self.position = np.array(position)
 		self.charge = charge
+		self.symbol = symbol
 
 class HermiteGaussian():
 	def __init__(self, position, exponent, angular_momentum):
@@ -25,6 +26,7 @@ class CartesianGaussian():
 	def __init__(self, position, exponent, angular_momentum):
 		self.position = np.array(position)
 		self.exponent = exponent
+		self.angular_momentum = angular_momentum
 		self.hermite_coefficients = []
 		self.hermite_gaussians = []
 		hermite_coeffsX = monomial_to_hermite_polynomials(angular_momentum[0], exponent)
@@ -44,11 +46,16 @@ class CartesianGaussian():
 
 class ContractedGaussian():
 	def __init__(self, position, exponents, angular_momenta, cartesian_coefficients):
+		self.position = position
+		self.exponents = exponents
+		self.angular_momenta = angular_momenta
 		self.cartesian_coefficients = cartesian_coefficients
+		self.cartesian_gaussians = []
 		self.hermite_coefficients = []
 		self.hermite_gaussians = []
 		for i in range(len(self.cartesian_coefficients)):
 			cartesianGaussian = CartesianGaussian(position, exponents[i], angular_momenta[i])
+			self.cartesian_gaussians.append(cartesianGaussian)
 			self.hermite_coefficients += [coeff*self.cartesian_coefficients[i]*cartesianGaussian.normalizationFactor for coeff in cartesianGaussian.hermite_coefficients if coeff != 0]
 			self.hermite_gaussians += [cartesianGaussian.hermite_gaussians[i] for i in range(len(cartesianGaussian.hermite_gaussians)) if cartesianGaussian.hermite_coefficients[i] != 0]
 		self.selfOverlap = 0
