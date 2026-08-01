@@ -1,7 +1,7 @@
 
 # Hartree-Fock
 
-Python script which computes the energy of a molecule using the Hartree-Fock method.
+Python script to compute the energy of a molecule using the Hartree-Fock method.
 
 ## How to use
 
@@ -10,7 +10,7 @@ Run `hartreefock.py` and provide as arguments:
 - Path to gaussian basis set `.gbs` file
 - Path to output numpy file to save results (example: `output.npz`)
 
-Once the output data (including energy, basis set coefficients, density matrices, etc.) is saved, you can visualize the orbitals by running `visualize.py` with the path to the output file.
+Once the output data (including energy, basis set coefficients, density matrices, etc.) is saved, the orbitals can be visualized by running `visualize.py` with the path to the output file.
 
 ### Example
 ```

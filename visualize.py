@@ -3,8 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib import colors
 from skimage import measure
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from integral_matricies import *
-from integral_implementations1 import hermite
+from helper_classes import *
 from parse_gaussian_basis_set import parse_gaussian_basis_set
 from parse_xyz_file import parse_xyz_file
 import argparse
