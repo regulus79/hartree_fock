@@ -50,3 +50,6 @@ Visualizing the orbitals:
 python visualize.py output.npz
 ```
 
+<img width="1099" height="765" alt="image" src="https://github.com/user-attachments/assets/50bc73d5-4a33-41d6-a625-7c6d5eec0bf1" />
+
+
