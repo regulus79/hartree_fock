@@ -13,6 +13,8 @@ Run `hartreefock.py` and provide as arguments:
 Once the output data (including energy, basis set coefficients, density matrices, etc.) is saved, the orbitals can be visualized by running `visualize.py` with the path to the output file.
 
 ### Example
+
+Computing the ground energy and molecular orbitals of water (H<sub>2</sub>O) using the STO-3G basis set:
 ```
 python hartreefock.py example_xyz_files/water.xyz basis_sets/sto-3g.gbs output.npz 
 ```
