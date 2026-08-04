@@ -1,7 +1,7 @@
 
 # Hartree-Fock
 
-Python script to compute the energy of a molecule using the Hartree-Fock method.
+Python script to compute the energy of a molecule using the Hartree-Fock method with Gaussian basis sets.
 
 ## How to use
 
