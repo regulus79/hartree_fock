@@ -5,7 +5,7 @@ import numpy as np
 
 # The "Boys" Function, defined as the integral of x^(2n) * e^(-Tx^2) dx from 0 to 1
 # "n" is the order of the Boys function. This is useful because the derivative of the Boys function wrt T simply brings
-# down an extra factor of -t^2, which is the same as increasing the order n by 1 (and negating)
+# down an extra factor of -x^2, which is the same as increasing the order n by 1 (and negating)
 # The higher order Boys functions can be computed with a recurrance relation, which is used here.
 def boys(n, T):
 	if n == 0:
